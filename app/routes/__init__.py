@@ -1,0 +1,1 @@
+#Não há nada ainda, mas este arquivo é necessário para que o FastAPI reconheça a pasta como um pacote Python.

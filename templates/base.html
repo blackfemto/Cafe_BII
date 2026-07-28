@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Café BII{% endblock %}</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark bg-dark shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="/">☕ Café BII</a>
+            <div>
+                <span class="text-light me-3">
+                    <i class="bi bi-person-circle"></i> {{ request.cookies.get('user_nome', 'Usuário') }}
+                </span>
+                <a href="/perfil" class="btn btn-outline-light btn-sm me-2">
+                    <i class="bi bi-gear"></i>
+                </a>
+                <a href="/logout" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-box-arrow-right"></i>
+                </a>
+                <button class="btn btn-outline-light btn-sm ms-2" onclick="alternarTema()">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <aside class="col-md-2 bg-light border-end min-vh-100 p-3">
+                <h6 class="text-uppercase text-secondary mb-3">Menu</h6>
+                <div class="list-group">
+                    <a href="/" class="list-group-item list-group-item-action">
+                        <i class="bi bi-house-door"></i> Dashboard
+                    </a>
+                    <a href="/categorias" class="list-group-item list-group-item-action">
+                        <i class="bi bi-folder"></i> Categorias
+                    </a>
+                    <a href="/produtos" class="list-group-item list-group-item-action">
+                        <i class="bi bi-cup-hot"></i> Produtos
+                    </a>
+                    <a href="/comandas" class="list-group-item list-group-item-action">
+                        <i class="bi bi-journal-text"></i> Comandas
+                    </a>
+                    <a href="/caixa" class="list-group-item list-group-item-action">
+                        <i class="bi bi-cash-stack"></i> Caixa
+                    </a>
+                    <a href="/relatorios" class="list-group-item list-group-item-action">
+                        <i class="bi bi-bar-chart"></i> Relatórios
+                    </a>
+                    <a href="/estoque" class="list-group-item list-group-item-action">
+                        <i class="bi bi-box-seam"></i> Estoque
+                    </a>
+                    <!-- CONFIGURAÇÕES REMOVIDA -->
+                    <!--
+                    <a href="#" class="list-group-item list-group-item-action disabled">
+                        <i class="bi bi-gear"></i> Configurações
+                    </a>
+                    -->
+                </div>
+
+                <!-- Menu SuperRoot (visível apenas para SUPER_ROOT) -->
+                {% if request.cookies.get('user_nivel') == 'SUPER_ROOT' %}
+                <hr>
+                <h6 class="text-uppercase text-secondary mb-3">Administração</h6>
+                <div class="list-group">
+                    <a href="/admin/super-root" class="list-group-item list-group-item-action">
+                        <i class="bi bi-shield-lock"></i> SuperRoot
+                    </a>
+                    <a href="/usuarios" class="list-group-item list-group-item-action">
+                        <i class="bi bi-people"></i> Usuários
+                    </a>
+                </div>
+                {% endif %}
+            </aside>
+
+            <!-- Conteúdo -->
+            <main class="col-md-10 p-4">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <footer class="text-center text-secondary py-3 border-top">
+        Café BII © 2026
+    </footer>
+
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Tema -->
+    <script src="/static/js/tema.js"></script>
+</body>
+
+</html>

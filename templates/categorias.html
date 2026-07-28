@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Categorias{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center">
+    <h2>📂 Categorias</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCategoria">
+        + Nova Categoria
+    </button>
+</div>
+
+<!-- Mensagens -->
+{% if request.query_params.get('sucesso') %}
+<div class="alert alert-success alert-dismissible fade show mt-3">
+    <i class="bi bi-check-circle"></i> {{ request.query_params.get('sucesso') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+{% if request.query_params.get('erro') %}
+<div class="alert alert-danger alert-dismissible fade show mt-3">
+    <i class="bi bi-exclamation-triangle"></i> {{ request.query_params.get('erro') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<div class="card p-4 mt-4">
+    <ul class="list-group">
+    {% for categoria in categorias %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span class="fw-semibold">{{ categoria.nome }}</span>
+            <div>
+                <button class="btn btn-sm btn-outline-warning me-1" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#modalEditarCategoria{{ categoria.id }}">
+                    ✏️ Editar
+                </button>
+                <form action="/categorias/{{ categoria.id }}/deletar" method="post" style="display:inline;"
+                      onsubmit="return confirm('Tem certeza que deseja deletar esta categoria?')">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        🗑️ Deletar
+                    </button>
+                </form>
+            </div>
+        </li>
+    {% else %}
+        <li class="list-group-item">Nenhuma categoria cadastrada.</li>
+    {% endfor %}
+    </ul>
+</div>
+
+<!-- Modal Nova Categoria -->
+<div class="modal fade" id="modalCategoria" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="/categorias/criar">
+                <div class="modal-header">
+                    <h5>Nova Categoria</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input class="form-control" name="nome" placeholder="Nome da categoria" required>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modais de Edição -->
+{% for categoria in categorias %}
+<div class="modal fade" id="modalEditarCategoria{{ categoria.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="/categorias/{{ categoria.id }}/editar">
+                <div class="modal-header">
+                    <h5>✏️ Editar Categoria</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input class="form-control" name="nome" value="{{ categoria.nome }}" required>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-warning">Atualizar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

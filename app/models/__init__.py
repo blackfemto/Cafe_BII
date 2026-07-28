@@ -1,0 +1,7 @@
+from .categoria import Categoria
+from .produto import Produto
+from .comanda import Comanda
+from .item_comanda import ItemComanda
+from .venda import Venda
+from .usuario import Usuario
+from .auditoria import Auditoria

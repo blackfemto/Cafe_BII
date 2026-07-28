@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}
+Comandas
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📝 Comandas</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalComanda">
+        + Nova Comanda
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for comanda in comandas %}
+                <tr>
+                    <td>{{ comanda.id }}</td>
+                    <td>{{ comanda.nome_cliente }}</td>
+                    <td>
+                        {% if comanda.status == "ABERTA" %}
+                            <span class="badge bg-success">{{ comanda.status }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ comanda.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if comanda.status == "FECHADA" %}
+                            R$ {{ "%.2f"|format(comanda.total) }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/comandas/{{ comanda.id }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> Ver
+                        </a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">Nenhuma comanda cadastrada.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalComanda" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/comandas/criar" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nova Comanda</h5>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">Nome do Cliente</label>
+                    <input class="form-control" name="cliente" required>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success">Criar Comanda</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

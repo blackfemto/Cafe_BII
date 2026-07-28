@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}SuperRoot - Painel Administrativo{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">👑 Painel SuperRoot</h2>
+        <p class="text-muted mb-0">Controle absoluto do sistema</p>
+    </div>
+    <span class="badge bg-danger fs-6">🔐 Acesso Restrito</span>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title">💰 Faturamento Total</h6>
+                <h2 class="mb-0">R$ {{ "%.2f"|format(resumo.total_vendas) }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title">📋 Total Vendas</h6>
+                <h2 class="mb-0">{{ total_vendas }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h6 class="card-title">👥 Usuários</h6>
+                <h2 class="mb-0">{{ usuarios|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h6 class="card-title">📝 Logs Auditoria</h6>
+                <h2 class="mb-0">{{ auditoria|length }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">📝 Últimas Ações (Auditoria)</h5>
+        <div class="table-responsive">
+            <table class="table table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Usuário</th>
+                        <th>Ação</th>
+                        <th>Detalhes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for log in auditoria %}
+                    <tr>
+                        <td>{{ log.data.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>{{ log.usuario.nome if log.usuario else 'Sistema' }}</td>
+                        <td><span class="badge bg-secondary">{{ log.acao }}</span></td>
+                        <td>
+                            {% if log.detalhes %}
+                                <pre class="mb-0 small">{{ log.detalhes|tojson }}</pre>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4" class="text-center text-muted">Nenhum log registrado.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">👥 Usuários do Sistema</h5>
+        <div class="table-responsive">
+            <table class="table table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Nível</th>
+                        <th>Status</th>
+                        <th>Último Login</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.id }}</td>
+                        <td>{{ usuario.nome }}</td>
+                        <td>{{ usuario.email }}</td>
+                        <td>
+                            {% if usuario.nivel == "SUPER_ROOT" %}
+                                <span class="badge bg-danger">👑 SUPER_ROOT</span>
+                            {% else %}
+                                <span class="badge bg-primary">GERENTE</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.ativo %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ usuario.ultimo_login.strftime('%d/%m/%Y %H:%M') if usuario.ultimo_login else 'Nunca' }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="mb-4">📊 Dashboard</h1>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title">💰 Faturamento Hoje</h6>
+                <h2 class="mb-0">R$ {{ "%.2f"|format(faturamento) }}</h2>
+                <small>{{ total_vendas }} vendas</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title">📋 Total de Vendas</h6>
+                <h2 class="mb-0">{{ total_vendas }}</h2>
+                <small>hoje</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h6 class="card-title">🛒 Ticket Médio</h6>
+                <h2 class="mb-0">R$ {{ "%.2f"|format(ticket_medio) }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">🚀 Ações Rápidas</h5>
+                <div class="d-grid gap-2">
+                    <a href="/comandas" class="btn btn-primary">
+                        <i class="bi bi-journal-text"></i> Ver Comandas
+                    </a>
+                    <a href="/caixa" class="btn btn-success">
+                        <i class="bi bi-cash-stack"></i> Ver Caixa
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">📋 Últimas Vendas</h5>
+                <div class="list-group">
+                {% for venda in vendas_hoje[:5] %}
+                    <div class="list-group-item d-flex justify-content-between">
+                        <span>Comanda #{{ venda.comanda_id }}</span>
+                        <span class="fw-bold text-success">R$ {{ "%.2f"|format(venda.valor) }}</span>
+                    </div>
+                {% else %}
+                    <div class="list-group-item text-center text-muted">
+                        Nenhuma venda hoje
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Usuários{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">👥 Gerenciar Usuários</h2>
+        <p class="text-muted mb-0">Gerencie os gerentes do sistema</p>
+    </div>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovoUsuario">
+        <i class="bi bi-plus-lg"></i> Novo Usuário
+    </button>
+</div>
+
+<!-- Mensagens -->
+{% if request.query_params.get('sucesso') %}
+<div class="alert alert-success alert-dismissible fade show">
+    <i class="bi bi-check-circle"></i> {{ request.query_params.get('sucesso') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+{% if request.query_params.get('erro') %}
+<div class="alert alert-danger alert-dismissible fade show">
+    <i class="bi bi-exclamation-triangle"></i> {{ request.query_params.get('erro') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Nível</th>
+                        <th>Status</th>
+                        <th>Último Login</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.id }}</td>
+                        <td>{{ usuario.nome }}</td>
+                        <td>{{ usuario.email }}</td>
+                        <td>
+                            {% if usuario.nivel == "SUPER_ROOT" %}
+                                <span class="badge bg-danger">👑 SUPER_ROOT</span>
+                            {% else %}
+                                <span class="badge bg-primary">GERENTE</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.ativo %}
+                                <span class="badge bg-success">Ativo</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ usuario.ultimo_login.strftime('%d/%m/%Y %H:%M') if usuario.ultimo_login else 'Nunca' }}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <!-- Botão Alterar Senha -->
+                                <button type="button" class="btn btn-outline-warning" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#modalSenha{{ usuario.id }}">
+                                    🔑
+                                </button>
+                                
+                                <!-- Botão Ativar/Desativar -->
+                                {% if usuario.id|string != request.cookies.get('user_id') %}
+                                    {% if usuario.ativo %}
+                                    <form action="/usuarios/{{ usuario.id }}/desativar" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-outline-danger" 
+                                                onclick="return confirm('Desativar este usuário?')">
+                                            🚫
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form action="/usuarios/{{ usuario.id }}/ativar" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-outline-success">
+                                            ✅
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Novo Usuário -->
+<div class="modal fade" id="modalNovoUsuario" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="/usuarios/criar" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">👤 Novo Usuário</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nome</label>
+                        <input type="text" class="form-control" name="nome" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email</label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Senha</label>
+                        <input type="password" class="form-control" name="senha" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nível</label>
+                        <select class="form-select" name="nivel">
+                            <option value="GERENTE">GERENTE</option>
+                            <option value="SUPER_ROOT">SUPER_ROOT</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">💾 Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modais de Alterar Senha -->
+{% for usuario in usuarios %}
+<div class="modal fade" id="modalSenha{{ usuario.id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="/usuarios/{{ usuario.id }}/alterar-senha" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">🔑 Alterar Senha - {{ usuario.nome }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nova Senha</label>
+                        <input type="password" class="form-control" name="nova_senha" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning">🔑 Alterar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

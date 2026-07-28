@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Meu Perfil{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">👤 Meu Perfil</h2>
+                
+                {% if request.query_params.get('sucesso') %}
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle"></i> {{ request.query_params.get('sucesso') }}
+                </div>
+                {% endif %}
+                {% if request.query_params.get('erro') %}
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i> {{ request.query_params.get('erro') }}
+                </div>
+                {% endif %}
+                
+                <div class="mb-3">
+                    <label class="text-muted">Nome</label>
+                    <p class="fw-semibold">{{ usuario.nome }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted">Email</label>
+                    <p class="fw-semibold">{{ request.cookies.get('user_email', 'admin@cafebii.com') }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted">Nível</label>
+                    <p>
+                        {% if usuario.nivel == "SUPER_ROOT" %}
+                            <span class="badge bg-danger">👑 SUPER_ROOT</span>
+                        {% else %}
+                            <span class="badge bg-primary">GERENTE</span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <hr>
+                <h5 class="mt-4">🔑 Alterar Senha</h5>
+                
+                <form action="/perfil/alterar-senha" method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Senha Atual</label>
+                        <input type="password" class="form-control" name="senha_atual" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nova Senha</label>
+                        <input type="password" class="form-control" name="nova_senha" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100">
+                        🔑 Alterar Senha
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
