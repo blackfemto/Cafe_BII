@@ -33,7 +33,7 @@ class SimpleAuthMiddleware(BaseHTTPMiddleware):
         
         return await call_next(request)
 
-#app.add_middleware(SimpleAuthMiddleware)
+app.add_middleware(SimpleAuthMiddleware)
 
 # Rotas
 app.include_router(dashboard_router)
