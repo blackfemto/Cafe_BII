@@ -1,22 +1,18 @@
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.responses import RedirectResponse
-import os
+from app.database import SessionLocal
+from app import models
 
-# Rotas públicas (não precisam de login)
+# Rotas públicas
 PUBLIC_ROUTES = [
-    "/login",
-    "/static",
-    "/favicon.ico",
-    "/criar-admin",
-    "/docs",
-    "/openapi.json"
+    "/login", "/static", "/favicon.ico",
+    "/criar-admin", "/docs", "/openapi.json"
 ]
 
 # Rotas que exigem SuperRoot
 SUPER_ROOT_ROUTES = [
-    "/admin/super-root",
-    "/usuarios"
+    "/admin/super-root", "/usuarios"
 ]
 
 
@@ -28,11 +24,19 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
         # Verificar se o usuário está logado
         user_id = request.cookies.get("user_id")
-        user_nivel = request.cookies.get("user_nivel")
 
         if not user_id:
-            # Redirecionar para login
             return RedirectResponse(url=f"/login?next={request.url.path}")
+
+        # 🔥 VERIFICAR O NÍVEL NO BANCO DE DADOS
+        db = SessionLocal()
+        try:
+            usuario = db.query(models.Usuario).filter(models.Usuario.id == int(user_id)).first()
+            if not usuario:
+                return RedirectResponse(url="/login")
+            user_nivel = usuario.nivel
+        finally:
+            db.close()
 
         # Verificar se a rota exige SuperRoot
         if any(request.url.path.startswith(route) for route in SUPER_ROOT_ROUTES):

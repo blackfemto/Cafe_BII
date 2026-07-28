@@ -15,27 +15,21 @@ from app.routes.relatorios import router as relatorios_router
 from app.routes.auth import router as auth_router
 from app.routes.super_root import router as super_root_router
 from app.routes.usuarios import router as usuarios_router
+from app.routes.estoque import router as estoque_router
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Café BII", version="1.0.0")
 
-# Middleware de autenticação simples
-class SimpleAuthMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        public_paths = ["/login", "/static", "/favicon.ico", "/criar-admin"]
-        if any(request.url.path.startswith(p) for p in public_paths):
-            return await call_next(request)
-        
-        user_id = request.cookies.get("user_id")
-        if not user_id:
-            return RedirectResponse(url="/login")
-        
-        return await call_next(request)
+# ==========================================
+# MIDDLEWARE DE AUTENTICAÇÃO COM VERIFICAÇÃO NO BANCO
+# ==========================================
+from app.middleware.auth import AuthMiddleware
+app.add_middleware(AuthMiddleware)
 
-app.add_middleware(SimpleAuthMiddleware)
-
-# Rotas
+# ==========================================
+# ROTAS
+# ==========================================
 app.include_router(dashboard_router)
 app.include_router(categorias_router)
 app.include_router(produtos_router)
@@ -45,8 +39,6 @@ app.include_router(relatorios_router)
 app.include_router(auth_router)
 app.include_router(super_root_router)
 app.include_router(usuarios_router)
+app.include_router(estoque_router)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-from app.routes.estoque import router as estoque_router
-
-app.include_router(estoque_router)
