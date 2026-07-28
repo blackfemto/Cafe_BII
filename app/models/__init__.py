@@ -5,3 +5,4 @@ from .item_comanda import ItemComanda
 from .venda import Venda
 from .usuario import Usuario
 from .auditoria import Auditoria
+from .fechamento import FechamentoCaixa

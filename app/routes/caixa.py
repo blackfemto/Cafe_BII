@@ -31,3 +31,43 @@ def pagina_caixa(
             "ticket_medio": dados["ticket_medio"]
         }
     )
+
+@router.post("/caixa/fechar")
+def fechar_caixa(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    from app.crud.fechamento import criar_fechamento
+    from app.crud.caixa import get_resumo_caixa
+
+    # Verifica se é SuperRoot ou Gerente
+    user_id = request.cookies.get("user_id")
+    if not user_id:
+        return RedirectResponse(url="/login", status_code=303)
+
+    # Criar fechamento
+    fechamento = criar_fechamento(db, int(user_id))
+
+    return RedirectResponse(
+        url="/caixa?sucesso=Caixa fechado com sucesso! Total: R$ {:.2f}".format(fechamento.total_vendas),
+        status_code=303
+    )
+
+
+@router.get("/caixa/fechamentos")
+def historico_fechamentos(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    from app.crud.fechamento import listar_fechamentos
+
+    fechamentos = listar_fechamentos(db)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="fechamentos.html",
+        context={
+            "request": request,
+            "fechamentos": fechamentos
+        }
+    )

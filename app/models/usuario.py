@@ -23,3 +23,4 @@ class Usuario(Base):
     comandas = relationship("Comanda", back_populates="usuario")
     vendas = relationship("Venda", back_populates="usuario")
     auditoria = relationship("Auditoria", back_populates="usuario")
+    fechamentos = relationship("FechamentoCaixa", back_populates="usuario")
