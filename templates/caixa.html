@@ -65,7 +65,7 @@
     </div>
 </div>
 
-<!-- Lista de Vendas -->
+<!-- Lista de Vendas com Forma de Pagamento -->
 <div class="card">
     <div class="card-body">
         <h5 class="card-title">📋 Vendas do Dia</h5>
@@ -75,6 +75,7 @@
                     <tr>
                         <th>Comanda</th>
                         <th>Valor</th>
+                        <th>Forma de Pagamento</th>
                         <th>Horário</th>
                     </tr>
                 </thead>
@@ -88,12 +89,15 @@
                             <strong class="text-success">R$ {{ "%.2f"|format(venda.valor) }}</strong>
                         </td>
                         <td>
+                            <span class="badge bg-secondary">{{ venda.forma_pagamento }}</span>
+                        </td>
+                        <td>
                             <small class="text-muted">{{ venda.data.strftime('%H:%M:%S') }}</small>
                         </td>
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="3" class="text-center py-4">
+                        <td colspan="4" class="text-center py-4">
                             <div style="font-size: 3rem;">🏪</div>
                             <h5 class="mt-2">Nenhuma venda registrada hoje</h5>
                             <p class="text-muted">As vendas aparecerão aqui após fechar uma comanda.</p>
@@ -106,7 +110,7 @@
                     <tr>
                         <td><strong>Total</strong></td>
                         <td><strong>R$ {{ "%.2f"|format(total) }}</strong></td>
-                        <td></td>
+                        <td colspan="2"></td>
                     </tr>
                 </tfoot>
                 {% endif %}
