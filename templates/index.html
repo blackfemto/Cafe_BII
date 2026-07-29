@@ -4,8 +4,9 @@
 
 <h1 class="mb-4">📊 Dashboard</h1>
 
+<!-- Cards de Resumo -->
 <div class="row g-4 mb-4">
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="card bg-success text-white">
             <div class="card-body">
                 <h6 class="card-title">💰 Faturamento Total</h6>
@@ -14,7 +15,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="card bg-primary text-white">
             <div class="card-body">
                 <h6 class="card-title">📋 Total de Vendas</h6>
@@ -22,24 +23,99 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="card bg-info text-white">
             <div class="card-body">
-                <h6 class="card-title">🛒 Ticket Médio</h6>
-                <h2 class="mb-0">R$ {{ "%.2f"|format(ticket_medio) }}</h2>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-warning text-dark">
-            <div class="card-body">
-                <h6 class="card-title">📋 Comandas Abertas</h6>
-                <h2 class="mb-0">{{ comandas_abertas }}</h2>
+                <h6 class="card-title">🏆 Gerentes que já fecharam</h6>
+                <h2 class="mb-0">{{ ranking|length }}</h2>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Ranking dos Gerentes -->
+<div class="row g-4 mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">🏆 Ranking dos Gerentes</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Gerente</th>
+                                <th>Faturamento</th>
+                                <th>Vendas</th>
+                                <th>Ticket Médio</th>
+                                <th>Data do Turno</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in ranking %}
+                            <tr>
+                                <td>
+                                    {% if loop.index == 1 %}
+                                        🥇
+                                    {% elif loop.index == 2 %}
+                                        🥈
+                                    {% elif loop.index == 3 %}
+                                        🥉
+                                    {% else %}
+                                        {{ loop.index }}°
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ item.nome }}</strong>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-success">R$ {{ "%.2f"|format(item.total) }}</span>
+                                </td>
+                                <td>{{ item.quantidade }}</td>
+                                <td>R$ {{ "%.2f"|format(item.ticket_medio) }}</td>
+                                <td>
+                                    <small class="text-muted">{{ item.data }}</small>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    Nenhum gerente fechou o caixa ainda.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <small class="text-muted">
+                    <i class="bi bi-info-circle"></i> 
+                    Ranking baseado nos fechamentos de caixa. Quanto maior o faturamento, melhor a posição.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Últimas Vendas -->
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">📋 Últimas Vendas</h5>
+        <div class="list-group">
+        {% for venda in ultimas_vendas %}
+            <div class="list-group-item d-flex justify-content-between">
+                <span>Comanda #{{ venda.comanda_id }}</span>
+                <span class="fw-bold text-success">R$ {{ "%.2f"|format(venda.valor) }}</span>
+            </div>
+        {% else %}
+            <div class="list-group-item text-center text-muted">
+                Nenhuma venda registrada.
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Ações Rápidas -->
 <div class="row mt-4">
     <div class="col-md-12">
         <div class="card">

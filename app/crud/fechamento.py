@@ -6,12 +6,10 @@ from app import models
 def criar_fechamento(db: Session, usuario_id: int):
     """Cria um fechamento de caixa e zera o período atual"""
     
-    # Buscar o último fechamento
     ultimo = db.query(models.FechamentoCaixa).order_by(
         models.FechamentoCaixa.data_fechamento.desc()
     ).first()
     
-    # Buscar vendas a partir do último fechamento
     if ultimo:
         vendas = db.query(models.Venda).filter(
             models.Venda.data > ultimo.data_fechamento
@@ -20,15 +18,13 @@ def criar_fechamento(db: Session, usuario_id: int):
         vendas = db.query(models.Venda).all()
     
     if not vendas:
-        return None  # Não há vendas para fechar
+        return None
     
-    # Calcular totais
     total = sum(v.valor for v in vendas)
     total_dinheiro = sum(v.valor for v in vendas if v.forma_pagamento == "DINHEIRO")
     total_pix = sum(v.valor for v in vendas if v.forma_pagamento == "PIX")
     total_cartao = sum(v.valor for v in vendas if v.forma_pagamento in ["CARTAO_CREDITO", "CARTAO_DEBITO"])
     
-    # Criar fechamento
     fechamento = models.FechamentoCaixa(
         data_fechamento=datetime.now(),
         total_vendas=total,
@@ -56,3 +52,34 @@ def listar_fechamentos(db: Session, limite: int = 30):
     return db.query(models.FechamentoCaixa).order_by(
         models.FechamentoCaixa.data_fechamento.desc()
     ).limit(limite).all()
+
+
+def get_ranking_gerentes(db: Session):
+    """Retorna o ranking de desempenho dos gerentes baseado nos fechamentos"""
+    
+    ranking = db.query(
+        models.Usuario.nome,
+        models.Usuario.id,
+        models.FechamentoCaixa.total_vendas,
+        models.FechamentoCaixa.quantidade_vendas,
+        models.FechamentoCaixa.data_fechamento
+    ).join(
+        models.Usuario, models.FechamentoCaixa.usuario_id == models.Usuario.id
+    ).order_by(
+        models.FechamentoCaixa.total_vendas.desc()
+    ).all()
+    
+    resultado = []
+    for r in ranking:
+        # Calcular ticket médio do turno
+        ticket_medio = r[2] / r[3] if r[3] > 0 else 0
+        resultado.append({
+            "nome": r[0],
+            "usuario_id": r[1],
+            "total": float(r[2]),
+            "quantidade": r[3],
+            "ticket_medio": float(ticket_medio),
+            "data": r[4].strftime("%d/%m/%Y %H:%M") if r[4] else "N/A"
+        })
+    
+    return resultado
