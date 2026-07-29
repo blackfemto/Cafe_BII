@@ -42,21 +42,10 @@
     </div>
 </div>
 
-<!-- Gráficos -->
+<!-- Ranking de Produtos -->
 <div class="row g-4">
-    <!-- Gráfico de Vendas 7 dias -->
-    <div class="col-md-8">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">📈 Vendas dos Últimos 7 Dias</h5>
-                <canvas id="graficoVendas" height="200"></canvas>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Ranking de Produtos -->
-    <div class="col-md-4">
-        <div class="card h-100">
+    <div class="col-md-6">
+        <div class="card">
             <div class="card-body">
                 <h5 class="card-title">🏆 Produtos Mais Vendidos</h5>
                 <div class="list-group list-group-flush">
@@ -80,36 +69,51 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Faturamento por Categoria -->
     <div class="col-md-6">
-        <div class="card h-100">
+        <div class="card">
             <div class="card-body">
                 <h5 class="card-title">📊 Faturamento por Categoria</h5>
-                <canvas id="graficoCategorias" height="200"></canvas>
+                <div class="list-group list-group-flush">
+                {% for categoria in faturamento_categorias %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ categoria.categoria }}</span>
+                        <span class="badge bg-primary rounded-pill">
+                            R$ {{ "%.2f"|format(categoria.total) }}
+                        </span>
+                    </div>
+                {% else %}
+                    <div class="list-group-item text-center text-muted">
+                        Nenhuma categoria com vendas.
+                    </div>
+                {% endfor %}
+                </div>
             </div>
         </div>
     </div>
-    
-    <!-- Resumo Geral -->
-    <div class="col-md-6">
-        <div class="card h-100">
+</div>
+
+<!-- Resumo Geral -->
+<div class="row g-4 mt-2">
+    <div class="col-md-12">
+        <div class="card">
             <div class="card-body">
                 <h5 class="card-title">📋 Resumo Geral</h5>
                 <div class="row g-3">
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="p-3 bg-light rounded text-center">
                             <small class="text-muted">Produtos Cadastrados</small>
                             <h4>{{ resumo.total_produtos }}</h4>
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="p-3 bg-light rounded text-center">
                             <small class="text-muted">Total Comandas</small>
                             <h4>{{ resumo.total_comandas }}</h4>
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="p-3 bg-light rounded text-center">
                             <small class="text-muted">Taxa de Fechamento</small>
                             <h4>
@@ -121,7 +125,7 @@
                             </h4>
                         </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-3">
                         <div class="p-3 bg-light rounded text-center">
                             <small class="text-muted">Ticket Médio Geral</small>
                             <h4>R$ {{ "%.2f"|format(resumo.ticket_medio) }}</h4>
@@ -133,67 +137,5 @@
     </div>
 </div>
 
-<script>
-// Gráfico de Vendas
-const ctx1 = document.getElementById('graficoVendas').getContext('2d');
-new Chart(ctx1, {
-    type: 'bar',
-    data: {
-        labels: {{ vendas_7_dias|map(attribute='data')|list|tojson }},
-        datasets: [{
-            label: 'Faturamento',
-            data: {{ vendas_7_dias|map(attribute='total')|list|tojson }},
-            backgroundColor: 'rgba(13, 110, 253, 0.7)',
-            borderColor: 'rgba(13, 110, 253, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                display: false
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    callback: function(value) {
-                        return 'R$ ' + value.toFixed(2);
-                    }
-                }
-            }
-        }
-    }
-});
-
-// Gráfico de Categorias
-const ctx2 = document.getElementById('graficoCategorias').getContext('2d');
-const cores = [
-    '#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#dc3545',
-    '#fd7e14', '#ffc107', '#198754', '#20c997', '#0dcaf0'
-];
-
-new Chart(ctx2, {
-    type: 'pie',
-    data: {
-        labels: {{ faturamento_categorias|map(attribute='categoria')|list|tojson }},
-        datasets: [{
-            data: {{ faturamento_categorias|map(attribute='total')|list|tojson }},
-            backgroundColor: cores.slice(0, {{ faturamento_categorias|length }}),
-            borderWidth: 2
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'bottom'
-            }
-        }
-    }
-});
-</script>
-
 {% endblock %}
+<!-- O gráfico de barras foi removido completamente -->
