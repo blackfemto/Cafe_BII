@@ -150,3 +150,20 @@
         </div>
     </div>
 </div>
+
+<!-- Botão de Fechamento -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <form method="post" action="/caixa/fechar" 
+              onsubmit="return confirm('Confirmar fechamento do caixa? Isso vai gerar um relatório do dia.')">
+            <button type="submit" class="btn btn-danger btn-lg w-100">
+                🔒 Fechar Caixa
+            </button>
+        </form>
+        <div class="mt-2 text-center">
+            <a href="/caixa/fechamentos" class="btn btn-outline-secondary btn-sm">
+                📋 Ver histórico de fechamentos
+            </a>
+        </div>
+    </div>
+</div>
