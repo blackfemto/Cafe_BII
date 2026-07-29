@@ -42,3 +42,6 @@ app.include_router(usuarios_router)
 app.include_router(estoque_router)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+from app.routes.relatorio_total import router as relatorio_total_router
+
+app.include_router(relatorio_total_router)

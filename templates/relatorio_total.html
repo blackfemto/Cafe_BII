@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório Total{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">📊 Relatório Total de Vendas</h2>
+        <p class="text-muted mb-0">Gerado em {{ data_geracao }}</p>
+    </div>
+    <button class="btn btn-outline-secondary" onclick="window.print()">
+        🖨️ Imprimir
+    </button>
+</div>
+
+<!-- Cards de Resumo -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <h6 class="card-title">💰 Total Geral</h6>
+                <h2 class="mb-0">R$ {{ "%.2f"|format(total) }}</h2>
+                <small>{{ quantidade }} vendas</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white h-100">
+            <div class="card-body">
+                <h6 class="card-title">💵 Dinheiro</h6>
+                <h2 class="mb-0">R$ {{ "%.2f"|format(total_dinheiro) }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <h6 class="card-title">📱 PIX</h6>
+                <h2 class="mb-0">R$ {{ "%.2f"|format(total_pix) }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark h-100">
+            <div class="card-body">
+                <h6 class="card-title">💳 Cartão</h6>
+                <h2 class="mb-0">R$ {{ "%.2f"|format(total_cartao) }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ticket Médio -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-secondary text-white">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="card-title mb-0">🛒 Ticket Médio</h6>
+                </div>
+                <h3 class="mb-0">R$ {{ "%.2f"|format(ticket_medio) }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de Vendas -->
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">📋 Detalhamento das Vendas</h5>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Comanda</th>
+                        <th>Valor</th>
+                        <th>Forma de Pagamento</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for venda in vendas %}
+                    <tr>
+                        <td>
+                            <span class="badge bg-dark">#{{ venda.comanda_id }}</span>
+                        </td>
+                        <td>
+                            <strong class="text-success">R$ {{ "%.2f"|format(venda.valor) }}</strong>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ venda.forma_pagamento }}</span>
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ venda.data.strftime('%d/%m/%Y %H:%M') }}</small>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+                <tfoot class="table-light">
+                    <tr>
+                        <td><strong>TOTAL</strong></td>
+                        <td><strong>R$ {{ "%.2f"|format(total) }}</strong></td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<a href="/caixa" class="btn btn-secondary mt-3">Voltar ao Caixa</a>
+
+{% endblock %}
