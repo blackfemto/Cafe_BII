@@ -1,6 +1,11 @@
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timedelta
 from app import models
+
+
+def ajustar_fuso(data_utc):
+    """Converte UTC para UTC-3"""
+    return data_utc - timedelta(hours=3)
 
 
 def criar_fechamento(db: Session, usuario_id: int):
@@ -55,7 +60,7 @@ def listar_fechamentos(db: Session, limite: int = 30):
 
 
 def get_ranking_gerentes(db: Session):
-    """Retorna o ranking de desempenho dos gerentes baseado nos fechamentos"""
+    """Retorna o ranking de desempenho dos gerentes com a data do turno (UTc-3)"""
     
     ranking = db.query(
         models.Usuario.nome,
@@ -71,15 +76,16 @@ def get_ranking_gerentes(db: Session):
     
     resultado = []
     for r in ranking:
-        # Calcular ticket médio do turno
         ticket_medio = r[2] / r[3] if r[3] > 0 else 0
+        # Ajustar a data para UTC-3 (Brasil)
+        data_br = ajustar_fuso(r[4]) if r[4] else None
         resultado.append({
             "nome": r[0],
             "usuario_id": r[1],
             "total": float(r[2]),
             "quantidade": r[3],
             "ticket_medio": float(ticket_medio),
-            "data": r[4].strftime("%d/%m/%Y %H:%M") if r[4] else "N/A"
+            "data": data_br.strftime("%d/%m/%Y") if data_br else "N/A"
         })
     
     return resultado
