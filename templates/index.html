@@ -4,175 +4,57 @@
 
 <h1 class="mb-4">📊 Dashboard Analítico</h1>
 
-<!-- ============================================= -->
-<!-- SCRIPT 1 — VISÃO GERAL DO NEGÓCIO -->
-<!-- ============================================= -->
+<!-- Visão Geral -->
 <div class="row g-4 mb-4">
     <div class="col-md-3">
-        <div class="card bg-success text-white h-100">
+        <div class="card bg-success text-white">
             <div class="card-body">
                 <h6 class="card-title">💰 Receita de Hoje</h6>
                 <h2 class="mb-0">R$ {{ "%.2f"|format(faturamento_hoje) }}</h2>
-                <small>{{ clientes_hoje }} clientes atendidos</small>
+                <small>{{ clientes_hoje }} clientes</small>
             </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card bg-primary text-white h-100">
+        <div class="card bg-primary text-white">
             <div class="card-body">
                 <h6 class="card-title">📋 Comandas Abertas</h6>
                 <h2 class="mb-0">{{ comandas_abertas }}</h2>
-                <small>clientes ativos</small>
             </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card bg-info text-white h-100">
+        <div class="card bg-info text-white">
             <div class="card-body">
                 <h6 class="card-title">🛒 Ticket Médio</h6>
                 <h2 class="mb-0">R$ {{ "%.2f"|format(ticket_medio) }}</h2>
-                <small>média por cliente</small>
             </div>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card bg-warning text-dark h-100">
+        <div class="card bg-secondary text-white">
             <div class="card-body">
-                <h6 class="card-title">📊 Previsão do Dia</h6>
-                <h2 class="mb-0">R$ {{ "%.2f"|format(previsao) }}</h2>
-                <small>estimativa baseada no ritmo atual</small>
+                <h6 class="card-title">📊 Total de Vendas</h6>
+                <h2 class="mb-0">{{ clientes_hoje }}</h2>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ============================================= -->
-<!-- SCRIPT 2 — COMPARATIVO INTELIGENTE -->
-<!-- ============================================= -->
-<div class="row g-4 mb-4">
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body text-center">
-                <h6 class="text-muted">Hoje</h6>
-                <h3 class="text-success">R$ {{ "%.2f"|format(faturamento_hoje) }}</h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body text-center">
-                <h6 class="text-muted">Ontem</h6>
-                <h3 class="text-secondary">R$ {{ "%.2f"|format(faturamento_ontem) }}</h3>
-                {% if faturamento_hoje > faturamento_ontem %}
-                    <span class="badge bg-success">▲ +{{ ((faturamento_hoje - faturamento_ontem) / faturamento_ontem * 100)|round(0) if faturamento_ontem > 0 else 0 }}%</span>
-                {% else %}
-                    <span class="badge bg-danger">▼ {{ ((faturamento_ontem - faturamento_hoje) / faturamento_ontem * 100)|round(0) if faturamento_ontem > 0 else 0 }}%</span>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body text-center">
-                <h6 class="text-muted">Média do Mês</h6>
-                <h3 class="text-secondary">R$ {{ "%.2f"|format(media_mes) }}</h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card">
-            <div class="card-body text-center">
-                <h6 class="text-muted">Melhor Dia</h6>
-                <h3 class="text-secondary">R$ {{ "%.2f"|format(melhor_dia) }}</h3>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ============================================= -->
-<!-- SCRIPT 3 — TENDÊNCIA DO DIA -->
-<!-- ============================================= -->
+<!-- Produtos Mais Vendidos -->
 <div class="row g-4 mb-4">
     <div class="col-md-12">
         <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">📈 Tendência do Dia</h5>
-                <div class="progress" style="height: 30px;">
-                    <div class="progress-bar bg-success" role="progressbar" 
-                         style="width: {{ (faturamento_hoje / previsao * 100)|round(0) if previsao > 0 else 0 }}%;">
-                        {{ (faturamento_hoje / previsao * 100)|round(0) if previsao > 0 else 0 }}% da previsão
-                    </div>
-                </div>
-                <small class="text-muted">Baseado no ritmo atual. Previsão: R$ {{ "%.2f"|format(previsao) }}</small>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ============================================= -->
-<!-- SCRIPT 4 — PRODUTOS CAMPEÕES -->
-<!-- ============================================= -->
-<div class="row g-4 mb-4">
-    <div class="col-md-6">
-        <div class="card h-100">
             <div class="card-body">
                 <h5 class="card-title">🏆 Produtos Mais Vendidos</h5>
                 <ul class="list-group list-group-flush">
                 {% for produto in produtos_top %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="badge bg-primary">{{ loop.index }}°</span>
-                            <strong>{{ produto.nome }}</strong>
-                            <br>
-                            <small class="text-muted">{{ produto.quantidade }} unidades</small>
-                        </div>
-                        <span class="fw-bold text-success">R$ {{ "%.2f"|format(produto.faturamento) }}</span>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ produto.nome }}</span>
+                        <span>{{ produto.quantidade }} unidades - R$ {{ "%.2f"|format(produto.faturamento) }}</span>
                     </li>
                 {% else %}
-                    <li class="list-group-item text-muted">Nenhum produto vendido hoje.</li>
-                {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </div>
-
-<!-- ============================================= -->
-<!-- SCRIPT 5 — PRODUTOS ESQUECIDOS -->
-<!-- ============================================= -->
-    <div class="col-md-6">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">💤 Produtos Esquecidos</h5>
-                <ul class="list-group list-group-flush">
-                {% for produto in produtos_esquecidos %}
-                    <li class="list-group-item">
-                        <span class="text-muted">{{ produto }}</span>
-                    </li>
-                {% else %}
-                    <li class="list-group-item text-muted">Todos os produtos foram vendidos hoje!</li>
-                {% endfor %}
-                </ul>
-                {% if produtos_esquecidos %}
-                <small class="text-muted">Considere oferecer estes produtos aos clientes.</small>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ============================================= -->
-<!-- SCRIPT 6 — INSIGHTS AUTOMÁTICOS -->
-<!-- ============================================= -->
-<div class="row g-4 mb-4">
-    <div class="col-md-12">
-        <div class="card border-primary">
-            <div class="card-body">
-                <h5 class="card-title text-primary">💡 Insights Automáticos</h5>
-                <ul class="list-unstyled">
-                {% for insight in insights %}
-                    <li><i class="bi bi-lightbulb text-warning"></i> {{ insight }}</li>
-                {% else %}
-                    <li class="text-muted">Nenhum insight disponível ainda. Faça mais vendas!</li>
+                    <li class="list-group-item text-muted">Nenhum produto vendido ainda.</li>
                 {% endfor %}
                 </ul>
             </div>
@@ -180,19 +62,17 @@
     </div>
 </div>
 
-<!-- ============================================= -->
-<!-- SCRIPT 7 — HORÁRIOS DE MOVIMENTO -->
-<!-- ============================================= -->
-<div class="row g-4 mb-4">
+<!-- Gráfico de Horários -->
+<div class="row g-4">
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">⏰ Movimento por Horário</h5>
-                <div class="row g-1">
+                <div class="d-flex flex-wrap" style="gap: 4px;">
                 {% for hora, quantidade in horarios.items() %}
-                    <div class="col-1 text-center">
+                    <div style="flex: 1; min-width: 30px; text-align: center;">
                         <div style="height: 100px; display: flex; flex-direction: column; justify-content: flex-end;">
-                            <div style="background-color: #0d6efd; height: {{ (quantidade / (horarios.values()|max) * 100) if horarios.values()|max > 0 else 0 }}%; min-height: 10px; border-radius: 4px 4px 0 0;"></div>
+                            <div style="background-color: #0d6efd; height: {{ (quantidade / (horarios.values()|max) * 100) if horarios.values()|max > 0 else 0 }}%; min-height: 5px; border-radius: 4px 4px 0 0;"></div>
                             <small>{{ hora }}</small>
                         </div>
                     </div>
@@ -203,51 +83,15 @@
     </div>
 </div>
 
-<!-- ============================================= -->
-<!-- SCRIPT 9 — RESUMO EXECUTIVO -->
-<!-- ============================================= -->
-<div class="row g-4">
-    <div class="col-md-12">
-        <div class="card bg-dark text-white">
-            <div class="card-body">
-                <h5 class="card-title">📋 Resumo Executivo</h5>
-                <p>
-                    {% if faturamento_hoje > 0 %}
-                        Receita de hoje: <strong>R$ {{ "%.2f"|format(faturamento_hoje) }}</strong>.
-                        {% if faturamento_hoje > faturamento_ontem %}
-                            Crescimento em relação a ontem.
-                        {% else %}
-                            Abaixo do dia anterior.
-                        {% endif %}
-                        {{ clientes_hoje }} clientes atendidos.
-                        Ticket médio: <strong>R$ {{ "%.2f"|format(ticket_medio) }}</strong>.
-                        {% if comandas_abertas > 0 %}
-                            {{ comandas_abertas }} comandas abertas.
-                        {% endif %}
-                    {% else %}
-                        Nenhuma venda registrada hoje.
-                    {% endif %}
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Ações Rápidas -->
+<!-- Ações -->
 <div class="row mt-4">
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
                 <div class="d-grid gap-2 d-md-flex">
-                    <a href="/comandas" class="btn btn-primary">
-                        <i class="bi bi-journal-text"></i> Nova Comanda
-                    </a>
-                    <a href="/caixa" class="btn btn-success">
-                        <i class="bi bi-cash-stack"></i> Ver Caixa
-                    </a>
-                    <a href="/relatorio-total" class="btn btn-outline-secondary">
-                        <i class="bi bi-bar-chart"></i> Relatório Estratégico
-                    </a>
+                    <a href="/comandas" class="btn btn-primary">Nova Comanda</a>
+                    <a href="/caixa" class="btn btn-success">Ver Caixa</a>
+                    <a href="/relatorio-total" class="btn btn-outline-secondary">Relatório Estratégico</a>
                 </div>
             </div>
         </div>
