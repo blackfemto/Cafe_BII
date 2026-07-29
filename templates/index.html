@@ -4,14 +4,14 @@
 
 <h1 class="mb-4">📊 Dashboard</h1>
 
-<!-- Cards com dados TOTAIS (todas as vendas) -->
+<!-- Cards com dados TOTAIS -->
 <div class="row g-4 mb-4">
     <div class="col-md-4">
         <div class="card bg-success text-white h-100">
             <div class="card-body">
-                <h6 class="card-title">💰 Faturamento Total</h6>
+                <h6 class="card-title">💰 Faturamento Total (Histórico)</h6>
                 <h2 class="mb-0">R$ {{ "%.2f"|format(faturamento_total) }}</h2>
-                <small>{{ total_vendas }} vendas no total</small>
+                <small>Acumulado de todas as vendas</small>
             </div>
         </div>
     </div>
@@ -36,7 +36,7 @@
     </div>
 </div>
 
-<!-- Resumo do dia -->
+<!-- Cards do dia -->
 <div class="row g-4 mb-4">
     <div class="col-md-6">
         <div class="card bg-warning text-dark">
