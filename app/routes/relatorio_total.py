@@ -2,13 +2,18 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from app.database import get_db
 from app import models
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
+
+
+def ajustar_fuso(data_utc):
+    """Converte UTC para UTC-3 (horário de Brasília)"""
+    return data_utc - timedelta(hours=3)
 
 
 @router.get("/relatorio-total", response_class=HTMLResponse)
@@ -24,28 +29,31 @@ def relatorio_total(
     faturamento_total = sum(v.valor for v in vendas) if vendas else 0
 
     # =============================================
-    # 2. FATURAMENTO POR MÊS
+    # 2. FATURAMENTO POR MÊS (COM FUSO CORRETO)
     # =============================================
     faturamento_mes = {}
     for v in vendas:
-        mes = v.data.strftime("%Y-%m")
+        data_br = ajustar_fuso(v.data)
+        mes = data_br.strftime("%Y-%m")
         faturamento_mes[mes] = faturamento_mes.get(mes, 0) + v.valor
 
     # =============================================
-    # 3. FATURAMENTO POR DIA DA SEMANA
+    # 3. FATURAMENTO POR DIA DA SEMANA (COM FUSO CORRETO)
     # =============================================
     dias_semana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"]
     faturamento_dia = {dia: 0 for dia in dias_semana}
     for v in vendas:
-        dia = dias_semana[v.data.weekday()]
+        data_br = ajustar_fuso(v.data)
+        dia = dias_semana[data_br.weekday()]
         faturamento_dia[dia] += v.valor
 
     # =============================================
-    # 4. HORÁRIO DE PICO
+    # 4. HORÁRIO DE PICO (COM FUSO CORRETO)
     # =============================================
     horarios = {}
     for v in vendas:
-        hora = v.data.hour
+        data_br = ajustar_fuso(v.data)
+        hora = data_br.hour
         horarios[hora] = horarios.get(hora, 0) + v.valor
     hora_pico = max(horarios, key=horarios.get) if horarios else None
 
