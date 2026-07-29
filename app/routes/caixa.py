@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
@@ -16,7 +16,7 @@ def pagina_caixa(
     db: Session = Depends(get_db)
 ):
     dados = get_resumo_caixa(db)
-    
+
     return templates.TemplateResponse(
         request=request,
         name="caixa.html",
@@ -32,24 +32,22 @@ def pagina_caixa(
         }
     )
 
+
 @router.post("/caixa/fechar")
 def fechar_caixa(
     request: Request,
     db: Session = Depends(get_db)
 ):
     from app.crud.fechamento import criar_fechamento
-    from app.crud.caixa import get_resumo_caixa
 
-    # Verifica se é SuperRoot ou Gerente
     user_id = request.cookies.get("user_id")
     if not user_id:
         return RedirectResponse(url="/login", status_code=303)
 
-    # Criar fechamento
     fechamento = criar_fechamento(db, int(user_id))
 
     return RedirectResponse(
-        url="/caixa?sucesso=Caixa fechado com sucesso! Total: R$ {:.2f}".format(fechamento.total_vendas),
+        url=f"/caixa?sucesso=Caixa fechado com sucesso! Total: R$ {fechamento.total_vendas:.2f}",
         status_code=303
     )
 
@@ -70,22 +68,4 @@ def historico_fechamentos(
             "request": request,
             "fechamentos": fechamentos
         }
-    )
-
-@router.post("/caixa/fechar")
-def fechar_caixa(
-    request: Request,
-    db: Session = Depends(get_db)
-):
-    from app.crud.fechamento import criar_fechamento
-
-    user_id = request.cookies.get("user_id")
-    if not user_id:
-        return RedirectResponse(url="/login", status_code=303)
-
-    fechamento = criar_fechamento(db, int(user_id))
-
-    return RedirectResponse(
-        url=f"/caixa?sucesso=Caixa fechado com sucesso! Total: R$ {fechamento.total_vendas:.2f}",
-        status_code=303
     )
