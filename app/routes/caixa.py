@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.crud.caixa import get_resumo_caixa
 from app.crud.fechamento import criar_fechamento, listar_fechamentos
+from app.crud.comandas import limpar_comandas_fechadas
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -43,6 +44,7 @@ def fechar_caixa(
     if not user_id:
         return RedirectResponse(url="/login", status_code=303)
 
+    # 1. Criar o fechamento (salva as vendas)
     fechamento = criar_fechamento(db, int(user_id))
 
     if fechamento is None:
@@ -51,8 +53,11 @@ def fechar_caixa(
             status_code=303
         )
 
+    # 2. 🔥 LIMPAR AS COMANDAS FECHADAS
+    qtd_removidas = limpar_comandas_fechadas(db)
+
     return RedirectResponse(
-        url=f"/caixa?sucesso=Caixa fechado com sucesso! Total: R$ {fechamento.total_vendas:.2f}",
+        url=f"/caixa?sucesso=Caixa fechado com sucesso! Total: R$ {fechamento.total_vendas:.2f}. {qtd_removidas} comandas removidas.",
         status_code=303
     )
 

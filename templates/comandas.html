@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}
-Comandas
-{% endblock %}
+{% block title %}Comandas Abertas{% endblock %}
 
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>📝 Comandas</h2>
+    <h2>📝 Comandas Abertas</h2>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalComanda">
         + Nova Comanda
     </button>
@@ -31,11 +29,7 @@ Comandas
                     <td>{{ comanda.id }}</td>
                     <td>{{ comanda.nome_cliente }}</td>
                     <td>
-                        {% if comanda.status == "ABERTA" %}
-                            <span class="badge bg-success">{{ comanda.status }}</span>
-                        {% else %}
-                            <span class="badge bg-secondary">{{ comanda.status }}</span>
-                        {% endif %}
+                        <span class="badge bg-success">{{ comanda.status }}</span>
                     </td>
                     <td>
                         {% if comanda.status == "FECHADA" %}
@@ -52,7 +46,9 @@ Comandas
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="5" class="text-center">Nenhuma comanda cadastrada.</td>
+                    <td colspan="5" class="text-center">
+                        Nenhuma comanda aberta.
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -60,6 +56,7 @@ Comandas
     </div>
 </div>
 
+<!-- Modal Nova Comanda -->
 <div class="modal fade" id="modalComanda" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
