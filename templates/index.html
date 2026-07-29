@@ -9,7 +9,7 @@
     <div class="col-md-4">
         <div class="card bg-success text-white h-100">
             <div class="card-body">
-                <h6 class="card-title">💰 Faturamento Total (Histórico)</h6>
+                <h6 class="card-title">💰 Faturamento Total</h6>
                 <h2 class="mb-0">R$ {{ "%.2f"|format(faturamento_total) }}</h2>
                 <small>Acumulado de todas as vendas</small>
             </div>
@@ -29,21 +29,21 @@
     <div class="col-md-4">
         <div class="card bg-info text-white h-100">
             <div class="card-body">
-                <h6 class="card-title">🛒 Ticket Médio Geral</h6>
+                <h6 class="card-title">🛒 Ticket Médio</h6>
                 <h2 class="mb-0">R$ {{ "%.2f"|format(ticket_medio) }}</h2>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Cards do dia -->
+<!-- Faturamento dos Últimos 10 Minutos -->
 <div class="row g-4 mb-4">
     <div class="col-md-6">
         <div class="card bg-warning text-dark">
             <div class="card-body">
-                <h6 class="card-title">📅 Faturamento de Hoje</h6>
-                <h2 class="mb-0">R$ {{ "%.2f"|format(faturamento_hoje) }}</h2>
-                <small>{{ vendas_hoje|length }} vendas hoje</small>
+                <h6 class="card-title">⚡ Faturamento dos Últimos 10 Min</h6>
+                <h2 class="mb-0">R$ {{ "%.2f"|format(faturamento_10min) }}</h2>
+                <small>{{ quantidade_10min }} vendas nos últimos 10 minutos</small>
             </div>
         </div>
     </div>
