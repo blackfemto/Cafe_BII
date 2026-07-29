@@ -58,3 +58,7 @@ app.include_router(estoque_router)
 app.include_router(relatorio_total_router)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# =============================================
+# VERSÃO: 2026-07-29 - RELATÓRIO TOTAL ATIVO
+# =============================================
