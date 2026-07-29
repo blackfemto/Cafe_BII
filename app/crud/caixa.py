@@ -1,26 +1,13 @@
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from app import models
-from app.crud.fechamento import get_ultimo_fechamento
 
 
 def get_resumo_caixa(db: Session):
-    """Retorna o resumo do caixa considerando apenas vendas após o último fechamento"""
+    """Retorna o resumo de TODAS as vendas (sem recortes)"""
     
-    # Buscar o último fechamento
-    ultimo_fechamento = get_ultimo_fechamento(db)
-    
-    # Se houver um fechamento, considerar vendas a partir da data dele
-    if ultimo_fechamento:
-        data_inicio = ultimo_fechamento.data_fechamento
-    else:
-        # Se não houver fechamento, considerar vendas do dia
-        data_inicio = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    
-    # Buscar vendas a partir da data do último fechamento
-    vendas = db.query(models.Venda).filter(
-        models.Venda.data > data_inicio
-    ).all()
+    # 🔥 BUSCA TODAS AS VENDAS (ignora fechamentos)
+    vendas = db.query(models.Venda).all()
     
     # Calcular totais
     total = sum(float(v.valor) for v in vendas)
