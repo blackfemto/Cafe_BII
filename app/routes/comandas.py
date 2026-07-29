@@ -30,8 +30,10 @@ def pagina_comandas(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    # Agora mostra APENAS comandas ABERTAS
-    comandas = crud.listar_comandas_abertas(db)
+    # 🔥 FILTRO DUPLO: SÓ COMANDAS ABERTAS
+    comandas = db.query(models.Comanda).filter(
+        models.Comanda.status == "ABERTA"
+    ).order_by(models.Comanda.id.desc()).all()
 
     return templates.TemplateResponse(
         request=request,
