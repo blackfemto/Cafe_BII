@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 
 from app.database import get_db
+from app import models  # ← ADICIONAR ESTA LINHA!
 from app.crud.relatorios import (
     get_vendas_ultimos_7_dias,
     get_produtos_mais_vendidos,
@@ -34,10 +35,9 @@ def pagina_relatorios(
     
     for i in range(7, -1, -1):
         dia = datetime(hoje.year, hoje.month, hoje.day) - timedelta(days=i)
-        dia_inicio = dia - timedelta(hours=3)  # Ajuste para UTC-3
+        dia_inicio = dia - timedelta(hours=3)
         dia_fim = dia_inicio + timedelta(days=1)
         
-        # Buscar vendas do dia (usando a data UTC-3)
         vendas = db.query(models.Venda).filter(
             models.Venda.data >= dia_inicio,
             models.Venda.data < dia_fim
