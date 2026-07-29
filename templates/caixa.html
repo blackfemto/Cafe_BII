@@ -7,19 +7,33 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h2 class="mb-0">💰 Caixa do Dia</h2>
-        <p class="text-muted mb-0">Resumo financeiro do dia</p>
+        <p class="text-muted mb-0">Vendas desde o último fechamento</p>
     </div>
     <button class="btn btn-outline-secondary" onclick="window.location.reload()">
         <i class="bi bi-arrow-clockwise"></i> Atualizar
     </button>
 </div>
 
+<!-- Mensagens -->
+{% if request.query_params.get('sucesso') %}
+<div class="alert alert-success alert-dismissible fade show">
+    <i class="bi bi-check-circle"></i> {{ request.query_params.get('sucesso') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+{% if request.query_params.get('erro') %}
+<div class="alert alert-danger alert-dismissible fade show">
+    <i class="bi bi-exclamation-triangle"></i> {{ request.query_params.get('erro') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
 <!-- Cards de Resumo -->
 <div class="row g-4 mb-4">
     <div class="col-md-3">
         <div class="card bg-success text-white h-100">
             <div class="card-body">
-                <h6 class="card-title"><i class="bi bi-cash-stack"></i> Total Vendido</h6>
+                <h6 class="card-title"><i class="bi bi-cash-stack"></i> Total do Período</h6>
                 <h2 class="mb-0">R$ {{ "%.2f"|format(total) }}</h2>
                 <small>{{ quantidade }} vendas</small>
             </div>
@@ -65,10 +79,10 @@
     </div>
 </div>
 
-<!-- Lista de Vendas com Forma de Pagamento -->
+<!-- Lista de Vendas -->
 <div class="card">
     <div class="card-body">
-        <h5 class="card-title">📋 Vendas do Dia</h5>
+        <h5 class="card-title">📋 Vendas do Período</h5>
         <div class="table-responsive">
             <table class="table table-hover align-middle">
                 <thead class="table-light">
@@ -99,7 +113,7 @@
                     <tr>
                         <td colspan="4" class="text-center py-4">
                             <div style="font-size: 3rem;">🏪</div>
-                            <h5 class="mt-2">Nenhuma venda registrada hoje</h5>
+                            <h5 class="mt-2">Nenhuma venda registrada neste período</h5>
                             <p class="text-muted">As vendas aparecerão aqui após fechar uma comanda.</p>
                         </td>
                     </tr>
@@ -119,19 +133,22 @@
     </div>
 </div>
 
-<!-- Botão Relatório Total -->
+<!-- Botão Fechar Caixa -->
 <div class="row mt-4">
     <div class="col-md-12">
-        <div class="card border-primary">
+        <div class="card border-danger">
             <div class="card-body">
-                <h5 class="card-title text-primary">📊 Relatório Total</h5>
+                <h5 class="card-title text-danger">🔒 Fechar Caixa</h5>
                 <p class="card-text">
                     <i class="bi bi-info-circle"></i> 
-                    Clique para ver o <strong>RELATÓRIO COMPLETO</strong> com todas as vendas acumuladas.
+                    Ao fechar o caixa, as vendas do período serão salvas no histórico e o caixa será <strong>zerado</strong> para o próximo turno.
                 </p>
-                <a href="/relatorio-total" class="btn btn-primary btn-lg w-100">
-                    📊 Ver Relatório Total
-                </a>
+                <form method="post" action="/caixa/fechar" 
+                      onsubmit="return confirm('Confirmar fechamento do caixa? Todas as vendas do período serão salvas.')">
+                    <button type="submit" class="btn btn-danger btn-lg w-100">
+                        🔒 Fechar Caixa
+                    </button>
+                </form>
             </div>
         </div>
     </div>

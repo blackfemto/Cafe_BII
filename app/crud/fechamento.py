@@ -1,25 +1,34 @@
 from sqlalchemy.orm import Session
 from datetime import datetime
 from app import models
-from app.crud.caixa import get_resumo_caixa
 
 
 def criar_fechamento(db: Session, usuario_id: int):
-    """Registra o total acumulado e zera o caixa para o próximo turno"""
+    """Cria um fechamento de caixa e zera o período atual"""
     
-    # Buscar TODAS as vendas (não apenas as do dia)
-    vendas = db.query(models.Venda).all()
+    # Buscar o último fechamento
+    ultimo = db.query(models.FechamentoCaixa).order_by(
+        models.FechamentoCaixa.data_fechamento.desc()
+    ).first()
+    
+    # Buscar vendas a partir do último fechamento
+    if ultimo:
+        vendas = db.query(models.Venda).filter(
+            models.Venda.data > ultimo.data_fechamento
+        ).all()
+    else:
+        vendas = db.query(models.Venda).all()
     
     if not vendas:
         return None  # Não há vendas para fechar
     
-    # Calcular totais ACUMULADOS (todas as vendas)
+    # Calcular totais
     total = sum(v.valor for v in vendas)
     total_dinheiro = sum(v.valor for v in vendas if v.forma_pagamento == "DINHEIRO")
     total_pix = sum(v.valor for v in vendas if v.forma_pagamento == "PIX")
     total_cartao = sum(v.valor for v in vendas if v.forma_pagamento in ["CARTAO_CREDITO", "CARTAO_DEBITO"])
     
-    # Criar fechamento com o TOTAL ACUMULADO
+    # Criar fechamento
     fechamento = models.FechamentoCaixa(
         data_fechamento=datetime.now(),
         total_vendas=total,
@@ -34,17 +43,10 @@ def criar_fechamento(db: Session, usuario_id: int):
     db.commit()
     db.refresh(fechamento)
     
-    # =============================================
-    # ZERAR O CAIXA (mas manter as vendas no banco)
-    # =============================================
-    # Marcamos o fechamento como "ativo" para o caixa saber que foi fechado
-    # As vendas continuam no banco, mas o caixa vai começar do zero
-    
     return fechamento
 
 
 def get_ultimo_fechamento(db: Session):
-    """Retorna o último fechamento realizado"""
     return db.query(models.FechamentoCaixa).order_by(
         models.FechamentoCaixa.data_fechamento.desc()
     ).first()

@@ -39,45 +39,20 @@ def fechar_caixa(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    """Gera um relatório com TODAS as vendas (total acumulado)"""
-    
     user_id = request.cookies.get("user_id")
     if not user_id:
         return RedirectResponse(url="/login", status_code=303)
 
-    # 🔥 BUSCA TODAS AS VENDAS (não apenas do período)
-    from app import models
-    vendas = db.query(models.Venda).all()
-    
-    if not vendas:
+    fechamento = criar_fechamento(db, int(user_id))
+
+    if fechamento is None:
         return RedirectResponse(
-            url="/caixa?erro=Não há vendas para gerar relatório!",
+            url="/caixa?erro=Não há vendas para fechar!",
             status_code=303
         )
-    
-    # Calcular totais de TODAS as vendas
-    total = sum(v.valor for v in vendas)
-    total_dinheiro = sum(v.valor for v in vendas if v.forma_pagamento == "DINHEIRO")
-    total_pix = sum(v.valor for v in vendas if v.forma_pagamento == "PIX")
-    total_cartao = sum(v.valor for v in vendas if v.forma_pagamento in ["CARTAO_CREDITO", "CARTAO_DEBITO"])
-    
-    # Salvar o relatório no histórico
-    from app.models import FechamentoCaixa
-    fechamento = FechamentoCaixa(
-        data_fechamento=datetime.now(),
-        total_vendas=total,
-        total_dinheiro=total_dinheiro,
-        total_pix=total_pix,
-        total_cartao=total_cartao,
-        quantidade_vendas=len(vendas),
-        usuario_id=int(user_id)
-    )
-    db.add(fechamento)
-    db.commit()
-    db.refresh(fechamento)
 
     return RedirectResponse(
-        url=f"/caixa/fechamentos?sucesso=Relatório gerado com sucesso! Total: R$ {total:.2f}",
+        url=f"/caixa?sucesso=Caixa fechado com sucesso! Total: R$ {fechamento.total_vendas:.2f}",
         status_code=303
     )
 
