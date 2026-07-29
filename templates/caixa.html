@@ -115,59 +115,7 @@
     </div>
 </div>
 
-<!-- BOTÃO DE FECHAMENTO (UMA VEZ) -->
-<div class="row mt-4">
-    <div class="col-md-12">
-        <form method="post" action="/caixa/fechar" 
-              onsubmit="return confirm('Confirmar fechamento do caixa? Isso vai gerar um relatório do dia.')">
-            <button type="submit" class="btn btn-danger btn-lg w-100">
-                🔒 Fechar Caixa
-            </button>
-        </form>
-        <div class="mt-2 text-center">
-            <a href="/caixa/fechamentos" class="btn btn-outline-secondary btn-sm">
-                📋 Ver histórico de fechamentos
-            </a>
-        </div>
-    </div>
-</div>
-
-{% endblock %}
-
-<!-- Adicionar no topo, abaixo do título -->
-<div class="alert alert-info">
-    <i class="bi bi-info-circle"></i> 
-    Mostrando vendas <strong>após o último fechamento</strong>.
-    <a href="/caixa/fechamentos" class="alert-link">Ver histórico</a>
-</div>
-
-<!-- Botão de Fechamento -->
-<div class="row mt-4">
-    <div class="col-md-12">
-        <div class="card border-primary">
-            <div class="card-body">
-                <h5 class="card-title text-primary">📊 Gerar Relatório Completo</h5>
-                <p class="card-text">
-                    <i class="bi bi-info-circle"></i> 
-                    Este relatório vai mostrar o <strong>TOTAL DE TODAS AS VENDAS</strong> acumuladas.
-                </p>
-                <form method="post" action="/caixa/fechar" 
-                      onsubmit="return confirm('Gerar relatório com todas as vendas?')">
-                    <button type="submit" class="btn btn-primary btn-lg w-100">
-                        📊 Gerar Relatório
-                    </button>
-                </form>
-                <div class="mt-2 text-center">
-                    <a href="/caixa/fechamentos" class="btn btn-outline-secondary btn-sm">
-                        📋 Ver histórico de relatórios
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Botão Gerar Relatório -->
+<!-- Botão Relatório Total -->
 <div class="row mt-4">
     <div class="col-md-12">
         <div class="card border-primary">
@@ -184,3 +132,5 @@
         </div>
     </div>
 </div>
+
+{% endblock %}
