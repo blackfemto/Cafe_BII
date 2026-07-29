@@ -4,18 +4,23 @@ from datetime import datetime, timedelta
 from app import models
 
 
+def ajustar_fuso(data_utc):
+    return data_utc - timedelta(hours=3)
+
+
 def get_vendas_ultimos_7_dias(db: Session):
-    """Retorna vendas dos últimos 7 dias"""
-    hoje = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    """Retorna vendas dos últimos 7 dias com fuso UTC-3"""
+    hoje = datetime.now()
     dados = []
     
     for i in range(7, -1, -1):
-        dia = hoje - timedelta(days=i)
-        amanha = dia + timedelta(days=1)
+        dia = datetime(hoje.year, hoje.month, hoje.day) - timedelta(days=i)
+        dia_inicio = dia - timedelta(hours=3)
+        dia_fim = dia_inicio + timedelta(days=1)
         
         total = db.query(func.sum(models.Venda.valor)).filter(
-            models.Venda.data >= dia,
-            models.Venda.data < amanha
+            models.Venda.data >= dia_inicio,
+            models.Venda.data < dia_fim
         ).scalar() or 0
         
         dados.append({
@@ -27,7 +32,6 @@ def get_vendas_ultimos_7_dias(db: Session):
 
 
 def get_produtos_mais_vendidos(db: Session, limite: int = 5):
-    """Retorna os produtos mais vendidos"""
     resultados = db.query(
         models.Produto.nome,
         func.sum(models.ItemComanda.quantidade).label('quantidade_total'),
@@ -57,7 +61,6 @@ def get_produtos_mais_vendidos(db: Session, limite: int = 5):
 
 
 def get_faturamento_por_categoria(db: Session):
-    """Retorna faturamento agrupado por categoria"""
     resultados = db.query(
         models.Categoria.nome,
         func.sum(models.ItemComanda.subtotal).label('total')
@@ -88,19 +91,11 @@ def get_faturamento_por_categoria(db: Session):
 
 
 def get_resumo_geral(db: Session):
-    """Retorna resumo geral do sistema"""
-    # Total de vendas
     total_vendas = db.query(func.sum(models.Venda.valor)).scalar() or 0
-    
-    # Total de comandas
     total_comandas = db.query(models.Comanda).count()
     comandas_abertas = db.query(models.Comanda).filter(models.Comanda.status == "ABERTA").count()
     comandas_fechadas = db.query(models.Comanda).filter(models.Comanda.status == "FECHADA").count()
-    
-    # Total de produtos
     total_produtos = db.query(models.Produto).filter(models.Produto.ativo == True).count()
-    
-    # Ticket médio geral
     ticket_medio = total_vendas / comandas_fechadas if comandas_fechadas > 0 else 0
     
     return {
