@@ -5,7 +5,6 @@ from app.crud.caixa import get_resumo_caixa
 
 
 def criar_fechamento(db: Session, usuario_id: int):
-    """Cria um fechamento de caixa com os dados do dia"""
     dados = get_resumo_caixa(db)
 
     fechamento = models.FechamentoCaixa(
@@ -25,7 +24,6 @@ def criar_fechamento(db: Session, usuario_id: int):
 
 
 def listar_fechamentos(db: Session, limite: int = 30):
-    """Lista os últimos fechamentos"""
     return db.query(models.FechamentoCaixa).order_by(
         models.FechamentoCaixa.data_fechamento.desc()
     ).limit(limite).all()
