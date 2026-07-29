@@ -6,3 +6,4 @@ from .venda import Venda
 from .usuario import Usuario
 from .auditoria import Auditoria
 from .fechamento import FechamentoCaixa
+from .historico_comanda import HistoricoComanda

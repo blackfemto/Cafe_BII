@@ -5,14 +5,14 @@ from datetime import datetime, timedelta
 from io import BytesIO
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib.enums import TA_CENTER
 
 from app.database import get_db
 from app import models
-from app.crud.fechamento import get_ultimo_fechamento
+from app.crud.historico import listar_historico_por_fechamento
 
 router = APIRouter()
 
@@ -34,17 +34,8 @@ def gerar_relatorio_pdf(
     if not fechamento:
         return {"erro": "Fechamento não encontrado"}
     
-    # Buscar o último fechamento anterior
-    ultimo_anterior = db.query(models.FechamentoCaixa).filter(
-        models.FechamentoCaixa.id < fechamento_id
-    ).order_by(models.FechamentoCaixa.id.desc()).first()
-    
-    # Buscar vendas do período
-    data_inicio = ultimo_anterior.data_fechamento if ultimo_anterior else datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(hours=3)
-    vendas = db.query(models.Venda).filter(
-        models.Venda.data > data_inicio,
-        models.Venda.data <= fechamento.data_fechamento
-    ).all()
+    # Buscar as comandas do histórico
+    comandas = listar_historico_por_fechamento(db, fechamento_id)
     
     # =============================================
     # GERAR PDF
@@ -82,11 +73,11 @@ def gerar_relatorio_pdf(
     resumo_data = [
         ["Indicador", "Valor"],
         ["Total de Vendas", f"R$ {fechamento.total_vendas:.2f}"],
-        ["Quantidade de Vendas", str(fechamento.quantidade_vendas)],
+        ["Quantidade de Comandas", str(len(comandas))],
         ["Dinheiro", f"R$ {fechamento.total_dinheiro:.2f}"],
         ["PIX", f"R$ {fechamento.total_pix:.2f}"],
         ["Cartão", f"R$ {fechamento.total_cartao:.2f}"],
-        ["Ticket Médio", f"R$ {fechamento.total_vendas / fechamento.quantidade_vendas:.2f}" if fechamento.quantidade_vendas > 0 else "R$ 0,00"]
+        ["Ticket Médio", f"R$ {fechamento.total_vendas / len(comandas):.2f}" if comandas else "R$ 0,00"]
     ]
     
     resumo_table = Table(resumo_data, colWidths=[2.5 * inch, 2.5 * inch])
@@ -105,24 +96,25 @@ def gerar_relatorio_pdf(
     elements.append(Spacer(1, 0.3 * inch))
     
     # =============================================
-    # LISTA DE VENDAS
+    # LISTA DE COMANDAS
     # =============================================
-    elements.append(Paragraph("DETALHAMENTO DAS VENDAS", styles['Heading3']))
+    elements.append(Paragraph("DETALHAMENTO DAS COMANDAS", styles['Heading3']))
     elements.append(Spacer(1, 0.1 * inch))
     
-    if vendas:
-        dados_vendas = [["Comanda", "Valor", "Forma Pagamento", "Data/Hora"]]
-        for venda in vendas:
-            data_br = ajustar_fuso(venda.data)
-            dados_vendas.append([
-                f"#{venda.comanda_id}",
-                f"R$ {venda.valor:.2f}",
-                venda.forma_pagamento,
+    if comandas:
+        dados_comandas = [["Comanda", "Cliente", "Valor", "Forma Pagamento", "Data/Hora"]]
+        for c in comandas:
+            data_br = ajustar_fuso(c.data_fechamento)
+            dados_comandas.append([
+                c.codigo,
+                c.cliente,
+                f"R$ {c.total:.2f}",
+                c.forma_pagamento,
                 data_br.strftime("%d/%m/%Y %H:%M")
             ])
         
-        vendas_table = Table(dados_vendas, colWidths=[1.2 * inch, 1.5 * inch, 1.5 * inch, 1.5 * inch])
-        vendas_table.setStyle(TableStyle([
+        comandas_table = Table(dados_comandas, colWidths=[1.2 * inch, 1.2 * inch, 1.2 * inch, 1.2 * inch, 1.2 * inch])
+        comandas_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -133,7 +125,7 @@ def gerar_relatorio_pdf(
             ('GRID', (0, 0), (-1, -1), 1, colors.black),
             ('FONTSIZE', (0, 1), (-1, -1), 8),
         ]))
-        elements.append(vendas_table)
+        elements.append(comandas_table)
         elements.append(Spacer(1, 0.1 * inch))
         
         # Total
@@ -147,7 +139,7 @@ def gerar_relatorio_pdf(
         )
         elements.append(Paragraph(f"Total Geral: R$ {fechamento.total_vendas:.2f}", total_style))
     else:
-        elements.append(Paragraph("Nenhuma venda registrada no período.", styles['Normal']))
+        elements.append(Paragraph("Nenhuma comanda registrada no período.", styles['Normal']))
     
     # =============================================
     # RODAPÉ
@@ -162,7 +154,6 @@ def gerar_relatorio_pdf(
     )
     elements.append(Paragraph("Documento gerado automaticamente pelo Café BII", rodape_style))
     
-    # Construir PDF
     doc.build(elements)
     buffer.seek(0)
     

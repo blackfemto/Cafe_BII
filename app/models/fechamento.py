@@ -21,3 +21,4 @@ class FechamentoCaixa(Base):
 
     usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
     usuario = relationship("Usuario", back_populates="fechamentos")
+    comandas = relationship("HistoricoComanda", back_populates="fechamento")
