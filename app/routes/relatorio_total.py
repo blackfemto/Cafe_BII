@@ -40,11 +40,15 @@ def relatorio_total(
     # =============================================
     # 3. FATURAMENTO POR DIA DA SEMANA (COM FUSO CORRETO)
     # =============================================
+    # Mapeamento correto: 0=Segunda, 1=Terça, ..., 6=Domingo
     dias_semana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"]
     faturamento_dia = {dia: 0 for dia in dias_semana}
+    
     for v in vendas:
         data_br = ajustar_fuso(v.data)
-        dia = dias_semana[data_br.weekday()]
+        # .weekday() retorna 0=Segunda, 6=Domingo
+        dia_index = data_br.weekday()
+        dia = dias_semana[dia_index]
         faturamento_dia[dia] += v.valor
 
     # =============================================
