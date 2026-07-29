@@ -49,7 +49,7 @@
     </div>
 </div>
 
-<!-- Faturamento por Mês (sem a tabela de dias da semana) -->
+<!-- Faturamento por Mês -->
 <div class="row g-4 mb-4">
     <div class="col-md-6">
         <div class="card">
@@ -65,27 +65,6 @@
                     <li class="list-group-item text-muted">Nenhum dado disponível.</li>
                 {% endfor %}
                 </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Produto Mais Vendido -->
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">🏆 Produto Mais Vendido</h5>
-        <div class="row text-center">
-            <div class="col-md-4">
-                <h4>{{ produto_mais_vendido.nome }}</h4>
-                <small class="text-muted">Produto</small>
-            </div>
-            <div class="col-md-4">
-                <h4>{{ produto_mais_vendido.quantidade }} unidades</h4>
-                <small class="text-muted">Quantidade</small>
-            </div>
-            <div class="col-md-4">
-                <h4>R$ {{ "%.2f"|format(produto_mais_vendido.preco) }}</h4>
-                <small class="text-muted">Preço Unitário</small>
             </div>
         </div>
     </div>
