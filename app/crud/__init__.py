@@ -16,12 +16,11 @@ from .produtos import (
 
 from .comandas import (
     criar_comanda,
-    listar_comandas,
+    listar_comandas_abertas,  # ← MUDOU DE listar_comandas PARA listar_comandas_abertas
     buscar_comanda,
     calcular_total,
     fechar_comanda,
-    cancelar_comanda,
-    deletar_comanda_permanente
+    limpar_comandas_fechadas
 )
 
 from .itens_comanda import (
@@ -54,4 +53,15 @@ from .relatorios import (
     get_produtos_mais_vendidos,
     get_faturamento_por_categoria,
     get_resumo_geral
+)
+
+from .fechamento import (
+    criar_fechamento,
+    listar_fechamentos,
+    get_ultimo_fechamento
+)
+
+from .historico import (
+    salvar_comandas_fechadas,
+    listar_historico_por_fechamento
 )
