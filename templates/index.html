@@ -4,46 +4,54 @@
 
 <h1 class="mb-4">📊 Dashboard</h1>
 
-<!-- Cards com dados TOTAIS -->
+<!-- Linha 1: Métricas Principais -->
 <div class="row g-4 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card bg-success text-white h-100">
             <div class="card-body">
                 <h6 class="card-title">💰 Faturamento Total</h6>
                 <h2 class="mb-0">R$ {{ "%.2f"|format(faturamento_total) }}</h2>
-                <small>Acumulado de todas as vendas</small>
+                <small>{{ total_vendas }} vendas</small>
             </div>
         </div>
     </div>
-    
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card bg-primary text-white h-100">
             <div class="card-body">
-                <h6 class="card-title">📋 Total de Vendas</h6>
-                <h2 class="mb-0">{{ total_vendas }}</h2>
-                <small>vendas registradas</small>
+                <h6 class="card-title">📈 Vendas Hoje</h6>
+                <h2 class="mb-0">R$ {{ "%.2f"|format(faturamento_hoje) }}</h2>
+                <small>{{ vendas_hoje|length }} vendas</small>
             </div>
         </div>
     </div>
-    
-    <div class="col-md-4">
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark h-100">
+            <div class="card-body">
+                <h6 class="card-title">📋 Comandas Abertas</h6>
+                <h2 class="mb-0">{{ comandas_abertas }}</h2>
+                <small>clientes ativos</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
         <div class="card bg-info text-white h-100">
             <div class="card-body">
-                <h6 class="card-title">🛒 Ticket Médio</h6>
-                <h2 class="mb-0">R$ {{ "%.2f"|format(ticket_medio) }}</h2>
+                <h6 class="card-title">🏆 Produto Mais Vendido</h6>
+                <h2 class="mb-0">{{ produto_top.nome }}</h2>
+                <small>{{ produto_top.quantidade }} unidades</small>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Faturamento dos Últimos 10 Minutos -->
+<!-- Linha 2: Movimento Agora -->
 <div class="row g-4 mb-4">
     <div class="col-md-6">
-        <div class="card bg-warning text-dark">
+        <div class="card bg-secondary text-white">
             <div class="card-body">
-                <h6 class="card-title">⚡ Faturamento dos Últimos 10 Min</h6>
+                <h6 class="card-title">⚡ Últimos 10 Minutos</h6>
                 <h2 class="mb-0">R$ {{ "%.2f"|format(faturamento_10min) }}</h2>
-                <small>{{ quantidade_10min }} vendas nos últimos 10 minutos</small>
+                <small>movimento agora</small>
             </div>
         </div>
     </div>
@@ -53,7 +61,7 @@
                 <h6 class="card-title">🚀 Ações Rápidas</h6>
                 <div class="d-grid gap-2">
                     <a href="/comandas" class="btn btn-primary">
-                        <i class="bi bi-journal-text"></i> Ver Comandas
+                        <i class="bi bi-journal-text"></i> Nova Comanda
                     </a>
                     <a href="/caixa" class="btn btn-success">
                         <i class="bi bi-cash-stack"></i> Ver Caixa

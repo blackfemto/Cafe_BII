@@ -17,28 +17,59 @@ async def dashboard(
     db: Session = Depends(get_db)
 ):
     # =============================================
-    # DADOS TOTAIS (TODAS AS VENDAS)
+    # 1. FATURAMENTO TOTAL
     # =============================================
-    total_vendas = db.query(models.Venda).count()
-    faturamento_total = db.query(models.Venda).with_entities(
-        models.Venda.valor
-    ).all()
-    faturamento_total = sum([v[0] for v in faturamento_total]) if faturamento_total else 0
-    ticket_medio = faturamento_total / total_vendas if total_vendas > 0 else 0
+    vendas = db.query(models.Venda).all()
+    faturamento_total = sum(v.valor for v in vendas) if vendas else 0
+    total_vendas = len(vendas)
 
     # =============================================
-    # FATURAMENTO DOS ÚLTIMOS 10 MINUTOS
+    # 2. VENDAS DE HOJE
     # =============================================
-    agora = datetime.now()
-    dez_min_atras = agora - timedelta(minutes=10)
-    
+    hoje = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    vendas_hoje = db.query(models.Venda).filter(models.Venda.data >= hoje).all()
+    faturamento_hoje = sum(v.valor for v in vendas_hoje) if vendas_hoje else 0
+
+    # =============================================
+    # 3. COMANDAS ABERTAS
+    # =============================================
+    comandas_abertas = db.query(models.Comanda).filter(models.Comanda.status == "ABERTA").count()
+
+    # =============================================
+    # 4. PRODUTO MAIS VENDIDO
+    # =============================================
+    produto_mais_vendido = db.query(
+        models.Produto.nome,
+        models.Produto.preco,
+        models.ItemComanda.produto_id,
+        models.ItemComanda.quantidade
+    ).join(
+        models.ItemComanda, models.Produto.id == models.ItemComanda.produto_id
+    ).order_by(
+        models.ItemComanda.quantidade.desc()
+    ).first()
+
+    if produto_mais_vendido:
+        produto_top = {
+            "nome": produto_mais_vendido[0],
+            "preco": produto_mais_vendido[1],
+            "quantidade": produto_mais_vendido[3]
+        }
+    else:
+        produto_top = {"nome": "Nenhum", "preco": 0, "quantidade": 0}
+
+    # =============================================
+    # 5. VENDAS DOS ÚLTIMOS 10 MIN
+    # =============================================
+    dez_min_atras = datetime.now() - timedelta(minutes=10)
     vendas_10min = db.query(models.Venda).filter(
         models.Venda.data >= dez_min_atras
     ).all()
-    
-    faturamento_10min = sum([v.valor for v in vendas_10min]) if vendas_10min else 0
+    faturamento_10min = sum(v.valor for v in vendas_10min) if vendas_10min else 0
 
-    # Últimas 5 vendas
+    # =============================================
+    # 6. ÚLTIMAS VENDAS (5)
+    # =============================================
     ultimas_vendas = db.query(models.Venda).order_by(
         models.Venda.data.desc()
     ).limit(5).all()
@@ -52,11 +83,10 @@ async def dashboard(
             # Totais
             "faturamento_total": faturamento_total,
             "total_vendas": total_vendas,
-            "ticket_medio": ticket_medio,
-            # Últimos 10 minutos
+            "faturamento_hoje": faturamento_hoje,
+            "comandas_abertas": comandas_abertas,
+            "produto_top": produto_top,
             "faturamento_10min": faturamento_10min,
-            "quantidade_10min": len(vendas_10min),
-            # Últimas vendas
             "ultimas_vendas": ultimas_vendas
         }
     )
