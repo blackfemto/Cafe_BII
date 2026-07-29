@@ -46,6 +46,12 @@ def fechar_caixa(
 
     fechamento = criar_fechamento(db, int(user_id))
 
+    if fechamento is None:
+        return RedirectResponse(
+            url="/caixa?erro=Não há vendas novas para fechar o caixa!",
+            status_code=303
+        )
+
     return RedirectResponse(
         url=f"/caixa?sucesso=Caixa fechado com sucesso! Total: R$ {fechamento.total_vendas:.2f}",
         status_code=303
