@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from datetime import datetime, timedelta
 from app import models
 
@@ -60,8 +61,17 @@ def listar_fechamentos(db: Session, limite: int = 30):
 
 
 def get_ranking_gerentes(db: Session):
-    """Retorna o ranking de desempenho dos gerentes com a data do turno (UTc-3)"""
+    """Retorna o MELHOR desempenho de cada gerente (maior faturamento)"""
     
+    # Subquery para pegar o melhor faturamento de cada usuário
+    subquery = db.query(
+        models.FechamentoCaixa.usuario_id,
+        func.max(models.FechamentoCaixa.total_vendas).label('max_total')
+    ).group_by(
+        models.FechamentoCaixa.usuario_id
+    ).subquery()
+    
+    # Buscar os detalhes do fechamento com o melhor faturamento
     ranking = db.query(
         models.Usuario.nome,
         models.Usuario.id,
@@ -69,7 +79,11 @@ def get_ranking_gerentes(db: Session):
         models.FechamentoCaixa.quantidade_vendas,
         models.FechamentoCaixa.data_fechamento
     ).join(
-        models.Usuario, models.FechamentoCaixa.usuario_id == models.Usuario.id
+        models.FechamentoCaixa, models.FechamentoCaixa.usuario_id == models.Usuario.id
+    ).join(
+        subquery, 
+        (models.FechamentoCaixa.usuario_id == subquery.c.usuario_id) &
+        (models.FechamentoCaixa.total_vendas == subquery.c.max_total)
     ).order_by(
         models.FechamentoCaixa.total_vendas.desc()
     ).all()
@@ -77,7 +91,6 @@ def get_ranking_gerentes(db: Session):
     resultado = []
     for r in ranking:
         ticket_medio = r[2] / r[3] if r[3] > 0 else 0
-        # Ajustar a data para UTC-3 (Brasil)
         data_br = ajustar_fuso(r[4]) if r[4] else None
         resultado.append({
             "nome": r[0],
