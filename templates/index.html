@@ -2,24 +2,23 @@
 
 {% block content %}
 
-<h1 class="mb-4">📊 Dashboard Analítico</h1>
+<h1 class="mb-4">📊 Dashboard</h1>
 
-<!-- Visão Geral -->
 <div class="row g-4 mb-4">
     <div class="col-md-3">
         <div class="card bg-success text-white">
             <div class="card-body">
-                <h6 class="card-title">💰 Receita de Hoje</h6>
-                <h2 class="mb-0">R$ {{ "%.2f"|format(faturamento_hoje) }}</h2>
-                <small>{{ clientes_hoje }} clientes</small>
+                <h6 class="card-title">💰 Faturamento Total</h6>
+                <h2 class="mb-0">R$ {{ "%.2f"|format(faturamento_total) }}</h2>
+                <small>{{ total_vendas }} vendas</small>
             </div>
         </div>
     </div>
     <div class="col-md-3">
         <div class="card bg-primary text-white">
             <div class="card-body">
-                <h6 class="card-title">📋 Comandas Abertas</h6>
-                <h2 class="mb-0">{{ comandas_abertas }}</h2>
+                <h6 class="card-title">📋 Total de Vendas</h6>
+                <h2 class="mb-0">{{ total_vendas }}</h2>
             </div>
         </div>
     </div>
@@ -32,58 +31,15 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card bg-secondary text-white">
+        <div class="card bg-warning text-dark">
             <div class="card-body">
-                <h6 class="card-title">📊 Total de Vendas</h6>
-                <h2 class="mb-0">{{ clientes_hoje }}</h2>
+                <h6 class="card-title">📋 Comandas Abertas</h6>
+                <h2 class="mb-0">{{ comandas_abertas }}</h2>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Produtos Mais Vendidos -->
-<div class="row g-4 mb-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">🏆 Produtos Mais Vendidos</h5>
-                <ul class="list-group list-group-flush">
-                {% for produto in produtos_top %}
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>{{ produto.nome }}</span>
-                        <span>{{ produto.quantidade }} unidades - R$ {{ "%.2f"|format(produto.faturamento) }}</span>
-                    </li>
-                {% else %}
-                    <li class="list-group-item text-muted">Nenhum produto vendido ainda.</li>
-                {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Gráfico de Horários -->
-<div class="row g-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">⏰ Movimento por Horário</h5>
-                <div class="d-flex flex-wrap" style="gap: 4px;">
-                {% for hora, quantidade in horarios.items() %}
-                    <div style="flex: 1; min-width: 30px; text-align: center;">
-                        <div style="height: 100px; display: flex; flex-direction: column; justify-content: flex-end;">
-                            <div style="background-color: #0d6efd; height: {{ (quantidade / (horarios.values()|max) * 100) if horarios.values()|max > 0 else 0 }}%; min-height: 5px; border-radius: 4px 4px 0 0;"></div>
-                            <small>{{ hora }}</small>
-                        </div>
-                    </div>
-                {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Ações -->
 <div class="row mt-4">
     <div class="col-md-12">
         <div class="card">
