@@ -1,17 +1,25 @@
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from app import models
+from app.crud.fechamento import get_ultimo_fechamento
 
 
 def get_resumo_caixa(db: Session):
-    """Retorna o resumo do caixa do dia atual"""
-    hoje = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    amanha = hoje + timedelta(days=1)
+    """Retorna o resumo do caixa considerando apenas vendas após o último fechamento"""
     
-    # Buscar vendas do dia
+    # Buscar o último fechamento
+    ultimo_fechamento = get_ultimo_fechamento(db)
+    
+    # Se houver um fechamento, considerar vendas a partir da data dele
+    if ultimo_fechamento:
+        data_inicio = ultimo_fechamento.data_fechamento
+    else:
+        # Se não houver fechamento, considerar vendas do dia
+        data_inicio = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    # Buscar vendas a partir da data do último fechamento
     vendas = db.query(models.Venda).filter(
-        models.Venda.data >= hoje,
-        models.Venda.data < amanha
+        models.Venda.data > data_inicio
     ).all()
     
     # Calcular totais

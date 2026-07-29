@@ -1,42 +1,25 @@
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime
 from app import models
 from app.crud.caixa import get_resumo_caixa
 
 
 def criar_fechamento(db: Session, usuario_id: int):
-    """Cria um fechamento de caixa, apenas se houver vendas novas desde o último fechamento"""
+    """Registra o total acumulado e zera o caixa para o próximo turno"""
     
-    # Verificar o último fechamento
-    ultimo = db.query(models.FechamentoCaixa).order_by(
-        models.FechamentoCaixa.data_fechamento.desc()
-    ).first()
+    # Buscar TODAS as vendas (não apenas as do dia)
+    vendas = db.query(models.Venda).all()
     
-    # Se houver um fechamento recente (menos de 5 minutos), não criar outro
-    if ultimo:
-        tempo_decorrido = datetime.now() - ultimo.data_fechamento
-        if tempo_decorrido.total_seconds() < 300:  # 5 minutos
-            return ultimo  # Retorna o mesmo fechamento
-    
-    # Buscar vendas após o último fechamento
-    if ultimo:
-        vendas = db.query(models.Venda).filter(
-            models.Venda.data > ultimo.data_fechamento
-        ).all()
-    else:
-        vendas = db.query(models.Venda).all()
-    
-    # Se não houver vendas novas, não criar fechamento
     if not vendas:
-        return None
+        return None  # Não há vendas para fechar
     
-    # Calcular totais
+    # Calcular totais ACUMULADOS (todas as vendas)
     total = sum(v.valor for v in vendas)
     total_dinheiro = sum(v.valor for v in vendas if v.forma_pagamento == "DINHEIRO")
     total_pix = sum(v.valor for v in vendas if v.forma_pagamento == "PIX")
     total_cartao = sum(v.valor for v in vendas if v.forma_pagamento in ["CARTAO_CREDITO", "CARTAO_DEBITO"])
     
-    # Criar novo fechamento
+    # Criar fechamento com o TOTAL ACUMULADO
     fechamento = models.FechamentoCaixa(
         data_fechamento=datetime.now(),
         total_vendas=total,
@@ -50,7 +33,21 @@ def criar_fechamento(db: Session, usuario_id: int):
     db.add(fechamento)
     db.commit()
     db.refresh(fechamento)
+    
+    # =============================================
+    # ZERAR O CAIXA (mas manter as vendas no banco)
+    # =============================================
+    # Marcamos o fechamento como "ativo" para o caixa saber que foi fechado
+    # As vendas continuam no banco, mas o caixa vai começar do zero
+    
     return fechamento
+
+
+def get_ultimo_fechamento(db: Session):
+    """Retorna o último fechamento realizado"""
+    return db.query(models.FechamentoCaixa).order_by(
+        models.FechamentoCaixa.data_fechamento.desc()
+    ).first()
 
 
 def listar_fechamentos(db: Session, limite: int = 30):
