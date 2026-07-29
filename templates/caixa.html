@@ -25,7 +25,6 @@
             </div>
         </div>
     </div>
-    
     <div class="col-md-3">
         <div class="card bg-info text-white h-100">
             <div class="card-body">
@@ -34,7 +33,6 @@
             </div>
         </div>
     </div>
-    
     <div class="col-md-3">
         <div class="card bg-primary text-white h-100">
             <div class="card-body">
@@ -43,7 +41,6 @@
             </div>
         </div>
     </div>
-    
     <div class="col-md-3">
         <div class="card bg-warning text-dark h-100">
             <div class="card-body">
@@ -78,7 +75,6 @@
                     <tr>
                         <th>Comanda</th>
                         <th>Valor</th>
-                        <th>Forma de Pagamento</th>
                         <th>Horário</th>
                     </tr>
                 </thead>
@@ -92,25 +88,12 @@
                             <strong class="text-success">R$ {{ "%.2f"|format(venda.valor) }}</strong>
                         </td>
                         <td>
-                            {% if venda.forma_pagamento == "DINHEIRO" %}
-                                <span class="badge bg-success">💰 Dinheiro</span>
-                            {% elif venda.forma_pagamento == "PIX" %}
-                                <span class="badge bg-primary">📱 PIX</span>
-                            {% elif venda.forma_pagamento == "CARTAO_CREDITO" %}
-                                <span class="badge bg-warning text-dark">💳 Crédito</span>
-                            {% elif venda.forma_pagamento == "CARTAO_DEBITO" %}
-                                <span class="badge bg-info text-dark">💳 Débito</span>
-                            {% else %}
-                                <span class="badge bg-secondary">{{ venda.forma_pagamento }}</span>
-                            {% endif %}
-                        </td>
-                        <td>
                             <small class="text-muted">{{ venda.data.strftime('%H:%M:%S') }}</small>
                         </td>
                     </tr>
                 {% else %}
                     <tr>
-                        <td colspan="4" class="text-center py-4">
+                        <td colspan="3" class="text-center py-4">
                             <div style="font-size: 3rem;">🏪</div>
                             <h5 class="mt-2">Nenhuma venda registrada hoje</h5>
                             <p class="text-muted">As vendas aparecerão aqui após fechar uma comanda.</p>
@@ -123,7 +106,7 @@
                     <tr>
                         <td><strong>Total</strong></td>
                         <td><strong>R$ {{ "%.2f"|format(total) }}</strong></td>
-                        <td colspan="2"></td>
+                        <td></td>
                     </tr>
                 </tfoot>
                 {% endif %}
@@ -132,7 +115,7 @@
     </div>
 </div>
 
-<!-- Botão de Fechamento -->
+<!-- BOTÃO DE FECHAMENTO (UMA VEZ) -->
 <div class="row mt-4">
     <div class="col-md-12">
         <form method="post" action="/caixa/fechar" 
@@ -148,40 +131,5 @@
         </div>
     </div>
 </div>
-
 
 {% endblock %}
-
-<!-- Botão de Fechamento -->
-<div class="row mt-4">
-    <div class="col-md-12">
-        <form method="post" action="/caixa/fechar" 
-              onsubmit="return confirm('Confirmar fechamento do caixa? Isso vai gerar um relatório do dia.')">
-            <button type="submit" class="btn btn-danger btn-lg w-100">
-                🔒 Fechar Caixa
-            </button>
-        </form>
-        <div class="mt-2 text-center">
-            <a href="/caixa/fechamentos" class="btn btn-outline-secondary btn-sm">
-                📋 Ver histórico de fechamentos
-            </a>
-        </div>
-    </div>
-</div>
-
-<!-- Botão de Fechamento -->
-<div class="row mt-4">
-    <div class="col-md-12">
-        <form method="post" action="/caixa/fechar" 
-              onsubmit="return confirm('Confirmar fechamento do caixa? Isso vai gerar um relatório do dia.')">
-            <button type="submit" class="btn btn-danger btn-lg w-100">
-                🔒 Fechar Caixa
-            </button>
-        </form>
-        <div class="mt-2 text-center">
-            <a href="/caixa/fechamentos" class="btn btn-outline-secondary btn-sm">
-                📋 Ver histórico de fechamentos
-            </a>
-        </div>
-    </div>
-</div>
